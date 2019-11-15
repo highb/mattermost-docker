@@ -53,6 +53,7 @@ jobs:
       working-directory: ./app
       run: |        
         docker build -t gcr.io/"$GKE_PROJECT"/"$IMAGE":"$GITHUB_SHA" \
+          --build-arg edition=team \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" .
 
