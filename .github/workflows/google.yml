@@ -61,7 +61,7 @@ jobs:
     - name: Build web
       working-directory: ./web
       run: |        
-        docker build -t gcr.io/"$GKE_PROJECT"/"$web"-web:"$GITHUB_SHA" \
+        docker build -t gcr.io/"$GKE_PROJECT"/"$APP"-web:"$GITHUB_SHA" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" .
 
