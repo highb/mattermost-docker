@@ -23,7 +23,7 @@ env:
   GITHUB_SHA: ${{ github.sha }}
   GKE_ZONE: us-west1-c
   #GKE_CLUSTER: example-gke-cluster
-  IMAGE: mattermost-app
+  APP: mattermost
 
 jobs:
   setup-build-publish-deploy:
@@ -48,20 +48,32 @@ jobs:
         gcloud auth configure-docker
      
       
-    # Build the Docker image (only need app, skip db and web)
+    # Build app
     - name: Build App
       working-directory: ./app
       run: |        
-        docker build -t gcr.io/"$GKE_PROJECT"/"$IMAGE":"$GITHUB_SHA" \
+        docker build -t gcr.io/"$GKE_PROJECT"/"$APP"-app:"$GITHUB_SHA" \
           --build-arg edition=team \
+          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+          --build-arg GITHUB_REF="$GITHUB_REF" .
+
+    # Build web (nginx proxy)
+    - name: Build web
+      working-directory: ./web
+      run: |        
+        docker build -t gcr.io/"$GKE_PROJECT"/"$web"-web:"$GITHUB_SHA" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" .
 
     # Push the Docker image to Google Container Registry
     - name: Publish
       run: |
-        docker push gcr.io/$GKE_PROJECT/$IMAGE:$GITHUB_SHA
-        
+        docker push gcr.io/$GKE_PROJECT/$APP-app:$GITHUB_SHA
+
+    # Push the Docker image to Google Container Registry
+    - name: Publish
+      run: |
+        docker push gcr.io/$GKE_PROJECT/$APP-web:$GITHUB_SHA        
     # Set up kustomize
     #- name: Set up Kustomize
     #  run: |
